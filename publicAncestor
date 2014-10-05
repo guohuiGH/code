@@ -1,0 +1,101 @@
+#include<iostream>
+#include<vector>
+#include<map>
+#include<string>
+
+using namespace std;
+
+void merge(int a[], int st, int mid, int en) {
+	
+}
+void mergeSort(int a[], int st, int en) {
+	if (st == en)
+	{
+		return;
+	}
+	else
+	{
+		int mid = (st + en) / 2;
+		mergeSort(a,st,mid);
+		mergeSort(a,mid,en);
+		merge(a, st, mid, en);
+	}
+}
+
+vector<vector<string>> tree;
+map<string, string> relation;
+map<string, int>flag;
+
+int main() {
+	
+	int size;
+	cin >> size;
+	string fa, son;
+
+	int counter = 0;
+	for (int i = 0; i < size; i++)
+	{
+		cin >> fa >> son;
+		/*
+		int po = flag[fa];
+		if (po) {
+			tree[po].push_back(son);
+		} else 
+		{
+			tree[counter].push_back(fa);
+			tree[counter].push_back(son);
+			flag[fa] = counter;
+			counter++;
+		}*/
+		relation[son] = fa;
+	}
+
+	int querySize;
+	cin >> querySize;
+	
+	for (int i = 0; i < querySize; i++)
+	{
+		string str1, str2;
+		cin >> str1 >> str2;
+		map<string,int> tag;
+		int signal = 0;
+		string master;
+	
+		while (true)
+		{
+			tag[str1] = 1;
+			string temp = relation[str1];
+			str1 = temp;
+			if (str1 == "")
+			{
+				tag[str1] = 1;
+				break;
+			}
+		}
+		while (true)
+		{
+			if (tag[str2]) {
+				master = str2;
+				break;
+			}
+			string temp = relation[str2];
+			if (temp == "") {
+				
+				signal = 1;
+				break;
+			}
+			
+			str2 = temp;
+		}
+
+		if (signal)
+		{
+			cout << "-1" << endl;
+		} else
+		{
+			cout << master << endl;
+		}
+
+	}
+	return 0;
+}
