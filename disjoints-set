@@ -1,0 +1,84 @@
+#define _CRT_SECURE_NO_DEPRECATE
+#include<iostream>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string>
+#include<map>
+
+using namespace std;
+
+
+map<string, string>nameMap;
+
+string find_ancestor(string query) {
+	if (nameMap[query] == "")
+	{
+		return "";
+	}
+	if (nameMap[query] == query)
+	{
+		return query;
+	}
+	else
+	{
+		string newquery = find_ancestor(nameMap[query]);
+		return newquery;
+	}
+}
+int main() 
+{
+	int size;
+	//cin >> size;
+	scanf("%d",&size);
+	int counter = 0;
+	for (int i = 0; i < size; i++)
+	{
+		int op;
+		string name1, name2;
+		//cin >> op >> name1 >> name2;
+		scanf("%d %c %c",&op,&name1,&name2);
+		
+		if (op == 1) 
+		{
+
+			string ancestor1 = find_ancestor(name1);
+			string ancestor2 = find_ancestor(name2);
+			if (ancestor1 == "" || ancestor2 == "")
+				printf("no");
+			else
+			{
+				if (ancestor1 == ancestor2)
+					//cout << "yes" << endl;
+					printf("yes");
+				else
+				{
+					//cout << "no" << endl;
+					printf("no");
+				}
+			}
+			printf("\n");
+			
+		}
+		else
+		{
+		
+			string temp1 = find_ancestor(name1);
+			string temp2 = find_ancestor(name2);
+			if (temp1 != "" && temp2 != "")
+			{
+				nameMap[temp2] = temp1;
+			}else if (temp1 != "" && temp2 == "")
+			{
+				nameMap[name2]=  temp1;
+			}else if (temp1 == "" && temp2 != "")
+			{
+				nameMap[name1] = temp2;
+			}else
+			
+			{
+				nameMap[name1] = name1;
+				nameMap[name2] = name1;
+			}
+		}
+	}
+}
