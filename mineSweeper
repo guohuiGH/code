@@ -1,0 +1,139 @@
+// bfs
+
+#define _CRT_SECURE_NO_WARNINGS
+#include<iostream>
+#include<fstream>
+#include<vector>
+#include<queue>
+using namespace std;
+
+struct Cell {
+	bool reveal;
+	int Mines;
+	int im;
+	int in;
+} cell [300][300];
+
+vector<int> ve;
+
+int main() {
+	freopen("A-large-practice.in", "r", stdin);
+	freopen("A-large-practice.out", "w", stdout);
+	int t;
+	cin >> t;
+
+	for (int i = 0; i < t; i++)
+	{
+		int size;
+		cin >> size;
+		
+		for (int j = 0; j < size; j++)
+		{
+			for (int k = 0; k < size; k++)
+			{
+				cell[j][k].Mines = 0;
+				cell[j][k].reveal = false;
+				cell[j][k].im = j;
+				cell[j][k].in = k;
+			}
+		}
+
+		for (int j = 0; j < size; j++)
+		{
+			for (int k = 0; k < size; k++)
+			{
+				char tempChar;
+				cin >> tempChar;
+				//arrayCell[j][k] = tempChar;
+				if (tempChar == '*')
+				{
+					ve.push_back(j);
+					ve.push_back(k);
+					
+				}
+			}
+		}
+
+		int weppersize = ve.size();
+		for (int j = 0; j < weppersize; j++)
+		{
+			int indexM = ve[j];
+			j++;
+			int indexN = ve[j];
+			cell[indexM][indexN].Mines = 1000;
+			for (int m = indexM - 1; m <= indexM + 1 ; m++)
+			{
+				for (int n = indexN - 1; n <= indexN + 1 ; n++)
+				{
+					if (m >= 0 && m < size &&  n >= 0 && n < size)
+					{
+						cell[m][n].Mines++;
+					}
+					
+				}
+			}
+		}
+
+		int count = 0;
+
+		for (int j = 0; j < size; j++)
+		{
+			for (int k = 0; k < size; k++)
+			{
+				if ( cell[j][k].Mines == 0  && !cell[j][k].reveal)
+				{
+					
+					count++;
+					queue<Cell> qu;
+					qu.push(cell[j][k]);
+					cell[j][k].reveal = true;
+					while (qu.size())
+					{
+						Cell topCell = qu.front();
+						qu.pop();
+						
+						
+						for (int m = topCell.im - 1; m <= topCell.im + 1; m++)
+						{
+							for (int n = topCell.in - 1; n <= topCell.in + 1; n++)
+							{
+								if (m >= 0 && m < size && n >=0 && n <size)
+								{
+									
+									if (cell[m][n].Mines == 0 && !cell[m][n].reveal)
+									{
+										cell[m][n].reveal = true;
+										qu.push(cell[m][n]);
+									}
+									cell[m][n].reveal = true;
+								}
+								
+							}
+						}
+
+					}
+					
+					
+				} 
+				
+			}
+		}
+
+		for (int j = 0; j < size; j++)
+		{
+			for (int k = 0; k < size; k++)
+			{
+				if ( !cell[j][k].reveal && cell[j][k].Mines>= 1 && cell[j][k].Mines < 10)
+				{
+					cell[j][k].reveal = true;
+					count++;
+				}
+			}
+		}
+		
+		cout << "Case #" << i+1 << ": " << count << endl;
+		ve.clear();
+		
+	}
+	return 0;
+}
