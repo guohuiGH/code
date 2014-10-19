@@ -1,0 +1,81 @@
+// beautiful string
+#include<iostream>
+#include<stdlib.h>
+#include<stdio.h>
+
+using namespace std;
+
+#define LENGTH 3000000 
+char str[LENGTH];
+
+int counter (int i) {
+	int count = 0;
+	while (true) {
+		if (str[i] == str[i+1]) {
+			count ++;
+			i++;
+		}
+		else
+			break;
+	}
+	return count;
+}
+int main () {
+	
+	int size;
+	scanf("%d",&size);
+	
+	for (int k = 0; k < size; k++) {
+		int n;
+		scanf("%d",&n);
+		scanf("%s",str);
+
+
+		int signal = 0;
+		for (int i = 0; i < n; i++) {
+			if (str[i] + 1 == str[i+1]) {
+				if (str[i+1] +1 == str[i+2]) {
+					printf("YES\n");
+					signal = 1;
+					break;
+				}
+				i++;
+				continue;
+			} else if (str[i] != str[i+1]) {
+				continue;
+			} 
+		
+			else if (str[i] == str[i+1]) {
+				int count1 = counter(i);
+				i = i + count1;
+
+				int count2 = counter (i + 1);
+				int temp = i + count2 + 1;
+
+				int count3 = counter (temp +1);
+
+
+				if (str[i] + 1 == str[i+1] && str[i] +2 == str[temp + 1] && count1 == count2 && count2 == count3) {
+					printf("YES\n");
+					signal = 1;
+					break;
+				} else if (str[temp] + 1 != str[temp+1] || count2 != count3) {
+					i = temp + count3;
+					continue;
+				} 
+				else{
+					i--;
+					continue;
+				}
+			}
+		}
+
+		for (int i = 0; i < n; i++) {
+			str[i] = 'A';
+		}
+		if (signal == 0) {
+			printf ("NO\n");
+		}
+	}
+	return 0;
+}
