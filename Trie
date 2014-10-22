@@ -1,0 +1,79 @@
+#include<cstdio>
+#include<iostream>
+#include<malloc.h>
+#include<string>
+
+using namespace std;
+
+const int MAX = 26;
+struct Trie {
+	int frequency;
+	Trie *next[MAX];
+};
+
+void insert (Trie *temp, char *s) {
+	if (temp == NULL)
+		return;
+	Trie *t = temp;
+	while (*s != '\0') {
+		int index = *s - 'a';
+		if (t->next[index] == NULL) {
+			Trie *newNode = (Trie *)malloc(sizeof(Trie));
+			newNode->frequency = 1;
+			for (int i = 0; i < MAX; i++) {
+				newNode->next[i] = NULL;
+			}
+			t->next[index] = newNode;
+			t = t->next[index];
+		} else {
+			t->next[index]->frequency++;
+			t = t->next[index];
+		}
+		s++;
+	}
+}
+
+int search (Trie *temp, char *s) {
+	Trie *root = temp;
+	if (&root == NULL)
+		return 0;
+	int result = 0;
+	while (*s != '\0') {
+		int index = *s - 'a';
+		if (root->next[index] != NULL) {
+			root = root->next[index];
+			result = root->frequency;
+		}else {
+			result = 0;
+			break;
+		}
+		s++;
+	}
+	return result;
+}
+
+int main () {
+	
+
+	int n;
+	scanf("%d",&n);
+	Trie *root = (Trie *)malloc(sizeof(Trie));
+	root->frequency = 0;
+	for (int i = 0; i < MAX; i++) {
+		root->next[i] = NULL;
+	}
+
+	for (int i = 0; i < n; i++) {
+		char c[10];
+		scanf("%s",c);
+		insert(root,c);
+	}
+
+	int querySize;
+	scanf("%d",&querySize);
+	for (int i = 0; i < querySize; i++) {
+		char c[10];
+		scanf("%s",c);
+		printf("%d\n",search(root,c));
+	}
+}
