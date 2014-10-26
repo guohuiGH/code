@@ -1,0 +1,146 @@
+//offline for Least Common Ancestors
+
+#define _CRT_SECURE_NO_WARNINGS
+#include<iostream>
+#include<string>
+#include<string.h>
+#include<vector>
+#include<map>
+#include<stdio.h>
+
+
+using namespace std;
+
+struct Query {
+	int pa;
+	map<int,int>queryValue;
+	int tag;
+	int upper;
+} query[100010];
+
+
+vector<int> ve[100010];
+vector<string>orderQuery;
+
+int disjonit (int find) {
+	if (query[find].upper == find)
+	{
+		return find;
+	}else {
+		int va = query[find].upper;
+		
+		int result = disjonit(va);
+		query[va].upper = result;
+		return result;
+	}
+}
+
+void dfs (int root, int find) {
+	
+	query[root].tag = 1;
+
+	map<int,int>::iterator it;
+	for (it = query[root].queryValue.begin(); it != query[root].queryValue.end(); it++) {
+			
+		int key = it->first;
+		int value = it->second;
+
+		if (!query[root].queryValue[key]) {
+			if (query[key].tag == 1) {
+				query[root].queryValue[key] = key;
+				query[key].queryValue[root] = key;
+			}else if (query[key].tag == 2) {
+				
+				int value = disjonit(key);
+				query[root].queryValue[key] = value;
+				query[key].queryValue[root] = value;
+							
+			}
+		}
+	}
+	for (int i = 0; i < ve[root].size(); i++) {
+		int temp = ve[root][i];
+		query[temp].pa = root;
+
+		dfs(temp,root);
+	}
+	query[root].tag = 2;
+	query[root].upper = find;
+	
+}
+
+int main() {
+	
+	int n;
+	scanf("%d",&n);
+	
+	map<string,int> mapName;
+	map<int,string>reMapName;
+
+	ve[0].push_back(2);
+	
+	int j = 1;
+	for (int i = 0; i < n; i++) {
+		string father, son;
+		char fa[100],so[100];
+		//cin >> father >> son;
+		scanf("%s %s",fa,so);
+		father = string(fa);
+		son = string(so);
+		if (mapName[father] == 0) {
+			mapName[father] = j;
+			reMapName[j] = father;
+			query[j].upper = j;
+			j++;
+			
+		}
+		
+		if (mapName[son] == 0) {
+			mapName[son] = j;
+			reMapName[j] = son;
+			query[j].upper = j;
+			j++;
+			
+		}
+		
+		ve[mapName[father]].push_back(mapName[son]);
+	}
+		
+	int querySize;
+	scanf ("%d",&querySize);
+
+	for (int i = 0; i < querySize; i++) {
+		string queryFirst, querySecond;
+		char fi[100], se[100];
+		scanf("%s %s", fi,se);
+		queryFirst = string(fi);
+		querySecond = string(se);
+
+		orderQuery.push_back(queryFirst);
+		orderQuery.push_back(querySecond);
+		int first = mapName[queryFirst];
+		int second = mapName[querySecond];
+		
+		query[first].queryValue[second] = 0;
+		query[first].tag = 0;
+		query[first].upper = first;
+		
+		query[second].queryValue[first] = 0;
+		query[second].tag = 0;
+	}
+
+	dfs(1,0);
+
+	vector<string>::iterator it;
+	for (it = orderQuery.begin(); it != orderQuery.end(); it++ ) {
+		
+		int name1 = mapName[*it];
+		it++;
+		int name2 = mapName[*it];
+		int value = query[name1].queryValue[name2];
+		//cout << reMapName[value] << endl;
+		printf("%s\n",reMapName[value].c_str());
+	}
+	
+	return 0;
+}
