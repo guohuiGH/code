@@ -1,0 +1,156 @@
+// online for Least Common Ancestors RMQ/ST & DFS
+#define _CRT_SECURE_NO_WARNINGS
+#include<iostream>
+#include<cstdio>
+#include<map>
+#include<string>
+#include<vector>
+
+using namespace std;
+
+#define LENGTH 100005
+vector <int> nameAtlas[LENGTH];
+vector<int> path;
+int color[LENGTH]= {0};
+int level[LENGTH];
+int minLevel[LENGTH][19];
+
+
+void dfsName (int root,int le) {
+	path.push_back(root);
+	color[root] = 1;
+	level[root] = le;
+	int length = nameAtlas[root].size();
+
+	le++;
+	for (int i = 0; i < length; i++)
+	{
+		
+		int temp = nameAtlas[root][i];
+		if (!color[temp])
+		{
+			dfsName(temp,le);
+			path.push_back(root);
+		}
+	}
+	
+
+}
+
+int powValue (int base) {
+	int result = 1;
+	for (int i = 0; i < base; i++)
+	{
+		result *= 2;
+	}
+	return result;
+}
+
+void calMinLevel () {
+
+	int length = path.size();
+
+	for (int i = 0; i < length; i++)
+	{
+		minLevel[i][0] = path[i];
+	}
+
+	for (int i = 1; i <= 18; i++) {
+		for (int j = 0; j < length; j++) {
+			int temp = powValue(i-1);
+			if (temp + j < length)
+				minLevel[j][i] = min(minLevel[j][i-1], minLevel[j + temp][i-1]);
+		}
+	}
+	
+}
+
+int findPosition (int query) {
+	vector<int>::iterator it;
+	int length = path.size();
+	for (int i = 0; i < length; i++)
+	{
+		if (path[i] == query) {
+			return i;
+		}
+	}
+	return 0;
+}
+
+int min (int a, int b) {
+	return a < b ? a : b;
+}
+
+int powBase (int value) {
+	int base = 0;
+	if (value == 1)
+		return 0;
+	int result = 1;
+	
+	while (result <= value)
+	{
+		result *= 2;
+		base++;
+	}
+	return base-1;
+}
+
+int findAncestor (int n1, int n2) {
+	int po1 = findPosition(n1);
+	int po2 = findPosition(n2);
+	int temp = po1;
+	if (po1 > po2) {
+		po1 = po2;
+		po2 = temp;
+	}
+	int base = powBase(po2 - po1 + 1);
+	int minAncestor = min (minLevel[po1][base],minLevel[po2-powValue(base) + 1][base]);
+	return minAncestor;
+}
+
+int main () {
+	int size;
+	scanf ("%d",&size);
+
+	map<string,int> mapName;
+	map<int, string> reMapName;
+	
+	int j = 0;
+	for (int i = 0; i < size; i++)
+	{
+		char fa[100],so[100];
+		scanf ("%s %s", fa, so);
+		string father = (string)fa;
+		string son = (string)so;
+		if (!mapName[father]) {
+			j++;
+			mapName[father] = j;
+			reMapName[j] = father;
+		}
+		if (!mapName[son]) {
+			j++;
+			mapName[son] = j;
+			reMapName[j] = son;
+		}
+		nameAtlas[mapName[father]].push_back(mapName[son]);
+		nameAtlas[mapName[son]].push_back(mapName[father]);
+		
+	}
+
+	dfsName (1,0);
+
+	calMinLevel ();
+
+	int querySize;
+	scanf ("%d", &querySize);
+	for (int i = 0; i < querySize; i++)
+	{
+		char c1[100], c2[100];
+		scanf ("%s %s",c1, c2);
+		int n1 = mapName[(string)c1];
+		int n2 = mapName[(string)c2];
+		
+		printf("%s\n",reMapName[findAncestor(n1,n2)].c_str());
+		
+	}
+}
