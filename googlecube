@@ -1,0 +1,72 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<iostream>
+#include<stdlib.h>
+#include<fstream>
+
+using namespace std;
+
+int a[1000][1000];
+int size[1001];
+int S;
+
+bool equal (int a, int b) {
+	return a == b ? true : false;
+}
+int bfs (int root, int row, int col) {
+	if (size[root] >= 0)
+		return size[root];
+	size[root] = 0;
+	if (col + 1 < S && equal (root + 1,a[row][col+1])) {
+		size[root] = bfs(a[row][col+1], row, col+1) + 1;
+	}
+	if (col - 1 >= 0 && equal (root + 1, a[row][col-1])) {
+		size[root] = bfs(a[row][col-1],row, col -1) + 1;
+	}
+	if (row + 1 < S && equal (root + 1, a[row+1][col])) {
+		size[root] = bfs(a[row+1][col], row + 1, col) + 1;
+	}
+	if (row - 1 >= 0 && equal(root + 1, a[row-1][col])) {
+		size[root] = bfs(a[row-1][col], row-1, col) + 1;
+	}
+
+	return size[root];
+	
+}
+int main () {
+	freopen("A-large.in","r",stdin);
+	freopen("A-large.out","w",stdout);
+	int t;
+	cin >> t;
+	for (int i = 1; i <= t; i++) {
+		
+		cin >> S;
+		memset(a, 0, sizeof(a));
+		memset(size, -1, sizeof(size));
+		for (int j = 0 ; j < S; j++) {
+			for (int k = 0; k < S; k++)
+				cin >> a[j][k];
+		}
+		for (int j = 0; j < S; j++) {
+			for (int k = 0; k < S; k++)
+			{
+				bfs(a[j][k], j, k);
+			}
+		}
+
+		int max = 0;
+		int position = 10001;
+		for (int j = 0; j < S; j++) {
+			for (int k = 0; k < S; k++) {
+				int temp = a[j][k];
+				if (max < size[temp] || (max == size[temp] && position > temp)) {
+					max = size[temp];
+					position = temp;
+				}
+				
+			}
+		}
+
+		cout << "Case #" << i <<": " << position << " " << max+1 << endl;
+	}
+	
+}
