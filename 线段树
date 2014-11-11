@@ -1,5 +1,7 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include<iostream>
 #include<cstdio>
+#include<algorithm>
 
 using namespace std;
 
@@ -12,10 +14,6 @@ struct Node {
 }node[SIZE];
 
 int index = 0;
-
-inline int minValue (int a, int b) {
-	return a < b ? a : b;
-}
 
 void updateIndex(int fa, int value) {
 	if (node[fa].leftIndex == NULL)
@@ -42,7 +40,7 @@ int buildTree(int left, int right, int fa) {
 	//int rightValue = node[right].value;
 	//if (mid < right)
 	int	rightValue = buildTree(mid + 1, right, temp);
-	node[temp].value = minValue (leftValue, rightValue);
+	node[temp].value = min (leftValue, rightValue);
 	return node[temp].value;
 }
 
@@ -56,7 +54,7 @@ void updateTree (int po, int updateValue) {
 		int leftIndex = node[fa].leftIndex;
 		int rightIndex = node[fa].rightIndex;
 		int tempValue = node[fa].value;
-		node[fa].value = minValue (node[leftIndex].value, node[rightIndex].value);
+		node[fa].value = min(node[leftIndex].value, node[rightIndex].value);
 		if (tempValue == node[fa].value)
 			break;
 		
@@ -64,33 +62,22 @@ void updateTree (int po, int updateValue) {
 }
 
 int searchTree (int po, int left, int right) {
-	if (node[po].left == left && node[po].right == right) {
+	if (node[po].left == left && node[po].right == right)
 		return node[po].value;
+	int leftChild = node[po].leftIndex;
+	int rightChild = node[po].rightIndex;
+	if (node[leftChild].right >= right)
+	{
+		return searchTree (leftChild, left, right);	 
+	}else if (node[rightChild].left <= left) {
+		return searchTree (rightChild, left, right);
+	}else {
+		return min(searchTree(leftChild, left, node[leftChild].right), searchTree(rightChild, node[rightChild].left, right));
 	}
-	if (left >= right)
-		return node[right].value;
-	int mid = (left + right)/2;
-	int leftIndex = node[po].leftIndex;
-	int rightIndex = node[po].rightIndex;
-	return minValue (searchTree(leftIndex, left, mid), searchTree(rightIndex, mid +1, right));
 	
 }
 
-int findPosition (int po, int left, int right) {
-	
-	while (node[po].left <= left && node[po].right >= right) {
-		int leftChild = node[po].leftIndex;
-		int rightChild = node[po].rightIndex;
-		if (node[leftChild].right >= right) {
-			po = leftChild;
-		} else if (node[rightChild].left <= left) {
-			po = rightChild;
-		}else {
-			return po;
-		}
-	}
-	return po;
-}
+
 
 int main () {
 	int N;
@@ -111,13 +98,13 @@ int main () {
 	node[index].right = N;
 	node[index].father =  N + 1;
 	
-	int min = (1 + N) / 2;
+	int mid = (1 + N) / 2;
 
-	int leftValue = buildTree(1, min, N + 1);
+	int leftValue = buildTree(1, mid, N + 1);
 	//int rightValue = node[N].value;
 	//if (min < N)
-	int	rightValue = buildTree(min + 1, N, N + 1);
-	node[N+1].value = minValue (leftValue, rightValue);
+	int	rightValue = buildTree(mid + 1, N, N + 1);
+	node[N+1].value = min(leftValue, rightValue);
 
 	int Q;
 	scanf ("%d", &Q);
@@ -127,8 +114,8 @@ int main () {
 		if (signal) {
 			updateTree (op1, op2);
 		} else {
-			int position = findPosition ( N + 1, op1, op2);
-			printf ("%d\n", searchTree(position, op1, op2));
+			//int position = findPosition ( N + 1, op1, op2);
+			printf ("%d\n", searchTree(N+1, op1, op2));
 		}
 	}
 	 
