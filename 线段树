@@ -13,7 +13,7 @@ struct Node {
 
 int index = 0;
 
-int minValue (int a, int b) {
+inline int minValue (int a, int b) {
 	return a < b ? a : b;
 }
 
@@ -25,10 +25,10 @@ void updateIndex(int fa, int value) {
 }
 
 int buildTree(int left, int right, int fa) {
-	if (left == right) {
-		updateIndex(fa, left);
-		node[left].father = fa;
-		return node[left].value;
+	if (left >= right) {
+		updateIndex(fa, right);
+		node[right].father = fa;
+		return node[right].value;
 	}
 	int mid = (left + right) /2;
 	index++;
@@ -39,9 +39,9 @@ int buildTree(int left, int right, int fa) {
 	node[temp].right = right;
 	node[temp].father = fa;
 	int leftValue = buildTree(left, mid, temp);
-	int rightValue = node[right].value;
-	if (mid < right)
-		rightValue = buildTree(mid + 1, right, temp);
+	//int rightValue = node[right].value;
+	//if (mid < right)
+	int	rightValue = buildTree(mid + 1, right, temp);
 	node[temp].value = minValue (leftValue, rightValue);
 	return node[temp].value;
 }
@@ -67,8 +67,8 @@ int searchTree (int po, int left, int right) {
 	if (node[po].left == left && node[po].right == right) {
 		return node[po].value;
 	}
-	if (left == right)
-		return node[left].value;
+	if (left >= right)
+		return node[right].value;
 	int mid = (left + right)/2;
 	int leftIndex = node[po].leftIndex;
 	int rightIndex = node[po].rightIndex;
@@ -114,9 +114,9 @@ int main () {
 	int min = (1 + N) / 2;
 
 	int leftValue = buildTree(1, min, N + 1);
-	int rightValue = node[N].value;
-	if (min < N)
-		rightValue = buildTree(min + 1, N, N + 1);
+	//int rightValue = node[N].value;
+	//if (min < N)
+	int	rightValue = buildTree(min + 1, N, N + 1);
 	node[N+1].value = minValue (leftValue, rightValue);
 
 	int Q;
