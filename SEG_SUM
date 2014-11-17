@@ -1,1 +1,72 @@
+#include<iostream>
+#include<fstream>
+using namespace std;
+const int SIZE = 100005;
+int weight[SIZE];
 
+struct Node {
+	int left, right;
+	Node* leftChild, * rightChild;
+	int sum;
+	int lazyTag;
+} ;
+int Build (Node *node, int left, int right) {
+	
+	if (node->left >= node->right) {
+		return weight[node->right];
+	}
+
+	int mid = (right + left) /2;
+	node->leftChild  = (Node *) malloc (sizeof(Node));
+	node->rightChild = (Node *)malloc (sizeof(Node));
+	node->leftChild->left = left;
+	node->leftChild->right = mid;
+	if (mid < right) 
+		node->rightChild->left = mid + 1;
+	else
+		node->rightChild->left = mid;
+	node->rightChild->right = right;
+	return node->sum = node->leftChild->sum + node->rightChild->sum;
+}
+
+void Modify (Node *node, Node * mo) {
+	if (node->left == mo->left && node->right == mo->right) {
+		node->lazyTag = mo->sum;
+		node->sum = mo->sum * (node->right - node->left + 1);
+		return;
+	}else {
+	
+	}
+}
+
+int main () {
+	int N;
+	scanf ("%d", &N);
+	for (int i = 1; i <= N; i++) {
+		scanf ("%d", &weight[i]);
+	}
+	Node *root = (Node *)malloc(sizeof(Node));
+	root->left = 1;
+	root->right = N;
+	Build(root, 1, N);
+	int Q;
+	scanf ("%d", &Q);
+	for (int i = 0; i < Q; i++) {
+		int signal;
+		scanf ("%d", &signal);
+		if (signal == 1) {
+			int left, right, modify;
+			scanf ("%d %d %d", &left, &right, &modify);
+			Node *tempNode = (Node *)malloc(sizeof(Node));
+			tempNode->left = left;
+			tempNode->right = right;
+			tempNode->sum = modify;
+			Modify(root,tempNode);
+			
+		}else {
+			int left, int right;
+			scanf ("%d %d", &left, &right);
+			Query(left, right);
+		}
+	}
+}
