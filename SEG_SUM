@@ -1,5 +1,6 @@
 #include<iostream>
 #include<fstream>
+#include<stdlib.h>
 using namespace std;
 const int SIZE = 100005;
 int weight[SIZE];
@@ -11,31 +12,77 @@ struct Node {
 	int lazyTag;
 } ;
 int Build (Node *node, int left, int right) {
-	
+	node->left = left;
+	node->right = right;
+	node->lazyTag = -1;
 	if (node->left >= node->right) {
-		return weight[node->right];
+		node->leftChild = NULL;
+		node->rightChild = NULL;
+		return node->sum = weight[node->right];
 	}
 
 	int mid = (right + left) /2;
 	node->leftChild  = (Node *) malloc (sizeof(Node));
 	node->rightChild = (Node *)malloc (sizeof(Node));
-	node->leftChild->left = left;
-	node->leftChild->right = mid;
-	if (mid < right) 
-		node->rightChild->left = mid + 1;
-	else
-		node->rightChild->left = mid;
-	node->rightChild->right = right;
-	return node->sum = node->leftChild->sum + node->rightChild->sum;
+	//node->leftChild->left = left;
+	//node->leftChild->right = mid;
+	//if (mid < right) 
+	//	node->rightChild->left = mid + 1;
+	//else
+	//	node->rightChild->left = mid;
+	//node->rightChild->right = right;
+	return node->sum = Build(node->leftChild,left, mid) + Build(node->rightChild, mid + 1, right);
 }
 
-void Modify (Node *node, Node * mo) {
-	if (node->left == mo->left && node->right == mo->right) {
-		node->lazyTag = mo->sum;
-		node->sum = mo->sum * (node->right - node->left + 1);
-		return;
+void Modify (Node *node, int left, int right, int value) {
+	if (node->left == left && node->right == right) {
+		node->lazyTag = value;
+		node->sum = value * (node->right - node->left + 1);
+		
 	}else {
-	
+		if (node->lazyTag != -1) {
+			node->leftChild->lazyTag = node->lazyTag;
+			node->leftChild->sum = node->lazyTag * (node->leftChild->right - node->leftChild->left + 1);
+
+			node->rightChild->lazyTag = node->lazyTag;
+			node->rightChild->sum = node->lazyTag * (node->rightChild->right - node->rightChild->left + 1);
+
+			node->lazyTag = -1;
+		}
+		if (node->leftChild->right >= right) {
+			Modify (node->leftChild, left, right, value);
+		}else if (node->rightChild->left <= left) {
+			Modify (node->rightChild, left, right, value);
+		} else {
+			Modify (node->leftChild, left, node->leftChild->right, value);
+			Modify (node->rightChild, node->rightChild->left, right, value);
+		}
+		node->sum = node->leftChild->sum + node->rightChild->sum;
+	}
+}
+
+int Query (Node *node, int left, int right) {
+	if (node->left == left && node->right == right)
+		return node->sum;
+	else {
+		if (node->lazyTag != -1) {
+			node->leftChild->lazyTag = node->lazyTag;
+			node->leftChild->sum = node->lazyTag * (node->leftChild->right - node->leftChild->left + 1);
+
+			node->rightChild->lazyTag = node->lazyTag;
+			node->rightChild->sum = node->lazyTag * (node->rightChild->right - node->rightChild->left + 1);
+
+			node->lazyTag = -1;
+		}
+		Node *leftNode = (Node *)malloc(sizeof(Node));
+		Node *rightNode = (Node *)malloc(sizeof(Node));
+		if (node->leftChild->right >= right)
+			return Query(node->leftChild, left, right);
+		else if (node->rightChild->left <= left) {
+			return Query(node->rightChild, left, right);
+		}else {
+			return Query(node->leftChild, left, node->leftChild->right) + Query(node->rightChild, node->rightChild->left, right);
+		}
 	}
 }
 
@@ -57,16 +104,16 @@ int main () {
 		if (signal == 1) {
 			int left, right, modify;
 			scanf ("%d %d %d", &left, &right, &modify);
-			Node *tempNode = (Node *)malloc(sizeof(Node));
-			tempNode->left = left;
-			tempNode->right = right;
-			tempNode->sum = modify;
-			Modify(root,tempNode);
+			//Node *tempNode = (Node *)malloc(sizeof(Node));
+			//tempNode->left = left;
+			//tempNode->right = right;
+			//tempNode->sum = modify;
+			Modify(root, left, right, modify);
 			
 		}else {
-			int left, int right;
+			int left, right;
 			scanf ("%d %d", &left, &right);
-			Query(left, right);
+			printf ("%d\n",Query(root, left, right));
 		}
 	}
 }
