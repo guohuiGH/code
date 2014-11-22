@@ -1,0 +1,44 @@
+#include<iostream>
+#include<cstdio>
+
+using namespace std;
+
+void Output(int a[]) {
+	int i = 2;
+	if (a[1] != 0)
+		cout << a[1];
+	while (a[i]) {
+		printf(" %d",a[i]);
+		i++;
+	}
+	printf("\n");
+}
+
+void Permulation (int n, int a[]) {
+	if (n == 1) {
+		Output(a);
+	} else {
+		for (int i = 1; i <= n; i++) {
+			Permulation(n-1, a);
+			int j = 1;
+			if (n %2)
+				j = 1;
+			else
+				j = i;
+			int temp = a[j];
+			a[j] = a[n];
+			a[n] = temp;
+		}
+	}
+}
+
+int main () {
+	int n;
+	cin >> n;
+	int a[11] = {0};
+	for (int i = 1; i <= n; i++) {
+		a[i] = i;
+	}
+
+	Permulation (n, a);
+}
