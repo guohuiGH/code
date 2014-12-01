@@ -1,0 +1,100 @@
+#include<iostream>
+#include<stdlib.h>
+#include<stdio.h>
+using namespace std;
+
+struct Node {
+	int left, right;
+	Node * leftChild;
+	Node *rightChild;
+	int lazyTagSet;
+	int lazyTagAdd;
+	int value;
+};
+int p[100005] = {0};
+
+int BuildSegmentTree (Node *root, int left, int right) {
+	root->lazyTagSet = -1;
+	root->lazyTagAdd = 0;
+	root->left = left;
+	root->right = right;
+	if( left >= right) {
+		root->leftChild = NULL;
+		root->rightChild = NULL;
+		root->value = p[right];
+		return p[right];
+	}
+	int mid = ( left + right ) / 2;
+	Node *leftChild = (Node *)malloc(sizeof(Node));
+	Node *rightChild = (Node *)malloc(sizeof(Node));
+	root->leftChild = leftChild;
+	root->rightChild = rightChild;
+	return root->value = BuildSegmentTree(leftChild, left, mid) + BuildSegmentTree(rightChild, mid + 1, right);
+}
+
+void ModifySegmentTree (Node *root, int flag, int left, int right, int price) {
+	if (root->left == left && root->right == right) {
+		if (flag == 1) {
+			root->lazyTagSet = price;
+			root->lazyTagAdd = 0;
+			root->value = (right - left + 1) * price;
+			return;
+		}else {
+			//root->lazyTagSet = -1;
+			root->lazyTagAdd += price;
+			root->value += (right - left + 1) * price;
+			return;
+		}
+	}
+
+	 
+	if (root->lazyTagSet != -1) {
+		root->leftChild->lazyTagSet = root->lazyTagSet;
+		root->leftChild->value = (root->leftChild->right - root->leftChild->left + 1) * root->lazyTagSet;
+		root->leftChild->lazyTagAdd = 0;
+
+		root->rightChild->lazyTagSet = root->lazyTagSet;
+		root->rightChild->value = (root->rightChild->right - root->rightChild->left + 1) * root->lazyTagSet;
+		root->rightChild->lazyTagAdd = 0;
+
+		root->lazyTagSet = -1;
+	}
+
+	if (root->lazyTagAdd != 0) {
+		root->leftChild->lazyTagAdd += root->lazyTagAdd;
+		root->rightChild->lazyTagAdd += root->lazyTagAdd;
+
+		root->leftChild->value += (root->leftChild->right - root->leftChild->left + 1) * root->lazyTagAdd;
+		root->rightChild->value += (root->rightChild->right - root->rightChild->left + 1) * root->lazyTagAdd;
+
+		root->lazyTagAdd = 0;
+	}
+	
+	if (root->leftChild->right >= right)
+		ModifySegmentTree (root->leftChild, flag, left, right, price);
+	else if (root->rightChild->left <= left)
+		ModifySegmentTree( root->rightChild, flag, left, right, price);
+	else {
+		ModifySegmentTree( root->leftChild, flag, left, root->leftChild->right, price);
+		ModifySegmentTree( root->rightChild, flag, root->rightChild->left, right, price);
+	}
+	root->value = root->leftChild->value + root->rightChild->value;
+}
+
+int main () {
+	int N, M;
+	
+	scanf( "%d %d", &N, &M);
+	for( int i = 0; i <= N; i++) {
+		scanf( "%d", &p[i]);
+	}
+	Node *root = (Node *)malloc(sizeof(Node));
+
+	BuildSegmentTree(root, 0, N);
+	for( int i = 0; i < M; i++) {
+		int flag, left, right, change;
+		scanf( "%d %d %d %d", &flag, &left, &right, &change);
+		ModifySegmentTree(root, flag, left, right, change);
+		printf("%d\n",root->value);
+	}
+}
