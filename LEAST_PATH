@@ -1,0 +1,93 @@
+#include<iostream>
+#include<vector>
+#include<stdio.h>
+#include<algorithm>
+
+using namespace std;
+
+const int SIZE = 1005;
+const int MAX = 10005;
+int signal = 1;
+vector<int> ve;
+
+struct Mystruct {
+	int len[SIZE];
+	int index[SIZE];
+	int flag;
+	int dictance;
+}s[SIZE];
+
+bool cmp (int a, int b) {
+	return s[signal].len[a] < s[signal].len[b];
+}
+
+bool isInSet(int e) {
+	int size = ve.size();
+	for (int i = 0; i < size; i++) {
+		if (ve[i] == e)
+			return true;
+	}
+	return false;
+}
+
+int main () {
+	int N, M, S, T;
+	scanf("%d %d %d %d",&N, &M, &S, &T);
+
+	//initial
+	for (int i = 1; i <= N; i++) {
+		for (int j = 0; j < SIZE; j++) {
+			s[i].len[j] = MAX;
+			s[i].index[j] = j;
+		}
+		s[i].flag = 0;
+		s[i].dictance = 0;
+	}
+
+	for (int i = 0; i < M; i++) {
+		int u, v, len;
+		scanf("%d %d %d", &u, &v, &len);
+		if (s[u].len[v] > len) {
+			s[u].len[v] = len;
+			s[v].len[u] = len;
+		}
+	}
+
+	for (int i = 1; i <= N; i++) {
+		sort(s[i].index, s[i].index + 1 + N, cmp);
+		signal++;
+	}
+
+	ve.push_back(S);
+	
+	while (true) {
+		int size = ve.size();
+		int min = MAX;
+		int f_index = 1, f_u = S;
+		for (int i = 0; i < size; i++) {
+			int u = ve[i];
+			int f = s[u].flag;
+			int in = s[u].index[f];
+			if (isInSet(in)) {
+				s[u].flag++;
+				i--;
+				continue;
+			}
+			int len = s[u].len[in];
+			int d = len + s[u].dictance;
+			if (d < min) {
+				f_index = in;
+				f_u = u;
+				min = d;
+			}
+		}
+
+		s[f_u].flag++;
+		s[f_index].dictance = min;
+		if (f_index == T)
+			break;
+		ve.push_back(f_index);
+	}
+
+	printf("%d\n",s[T].dictance);
+}
