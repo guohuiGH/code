@@ -1,0 +1,64 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<iostream>
+#include<vector>
+#include<stdio.h>
+#include<string.h>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+const int MAX = 1000005;
+int matrix[101][101];
+
+int main () {
+	int N, M;
+	scanf("%d %d",&N, &M);
+	for (int i = 1; i <= N; i++)
+	{
+		for (int j = 1; j <= N; j++)
+		{
+			matrix[i][j] = MAX;
+		}
+	}
+
+	for (int i = 0; i < M; i++) {
+		int u, v, length;
+		scanf("%d %d %d", &u, &v, &length);
+		if (matrix[u][v] > length)
+		{
+			matrix[u][v] = length;
+			matrix[v][u] = length;
+		}
+	}
+
+	for (int k = 1; k <= N; k++) {
+		for (int i = 1; i <= N; i++) {
+			for (int j = 1; j <= N; j++) {
+				matrix[i][j] = min(matrix[i][j], matrix[i][k] + matrix[k][j]);
+			}
+		}
+	}
+
+	for (int i = 1; i <= N; i++)
+	{
+		for (int j = 1; j < N; j++)
+		{
+			if (i == j)
+			{
+				printf("0 ");
+			} else
+			{
+				printf("%d ",matrix[i][j]);
+			}
+			
+		}
+		if (i == N)
+		{
+			printf("0 \n");
+		}else
+		{
+			printf("%d\n", matrix[i][N]);
+		}
+		
+	}
+}
