@@ -1,0 +1,91 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+#include<iostream>
+#include<cstdio>
+#include<string.h>
+#include<map>
+#include<string>
+#include<stack>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+int represent[100005];
+struct Edge {
+	int left, right;
+	int value;
+}edges[1000005];
+
+bool cmp(Edge a, Edge b) {
+	return a.value < b.value;
+}
+
+int find_represent(int x) {
+	if (represent[x] == x)
+	{
+		return x;
+	}else
+	{
+		return represent[x] = find_represent(represent[x]);
+	}
+}
+
+bool join (int a, int b) {
+	int u = find_represent(a);
+	int v = find_represent(b);
+	if (u == v)
+	{
+		return false;
+	}
+
+	if (u < v)
+	{
+		represent[v] = u;
+	}
+	else
+	{
+		represent[u] = v;
+	}
+	return true;
+}
+
+int main () {
+	int N, M;
+	scanf("%d %d", &N, &M);
+	
+	
+	for (int i = 1; i <= N; i++)
+	{
+		represent[i] = i;
+	}
+
+	for (int i = 0; i < M; i++)
+	{
+		int u, v, len;
+		scanf("%d %d %d", &u, &v, &len);
+		edges[i].left = u;
+		edges[i].right = v;
+		edges[i].value = len;
+	}
+
+	sort(edges, edges + M, cmp);
+
+	int original = edges[0].left;
+	int i = 0;
+	int sum = 0;
+	int counter = 0;
+	while (counter != N-1)
+	{
+		int flag = 0;
+		int u = edges[i].left;
+		int v = edges[i].right;
+		
+		if (join(u, v))
+		{
+			sum += edges[i].value;
+			counter++;
+		}
+		i++;
+	}
+	printf("%d\n", sum);
+}                                                               
